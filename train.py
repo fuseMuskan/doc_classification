@@ -5,12 +5,11 @@ import argparse
 import torch
 from pathlib import Path
 import model_builder
+from ultralytics import YOLO
 
 import engine
 from utils import create_writer, save_model
 import custom_focal_loss
-from ultralytics import YOLO
-
 
 
 # Extracting argparse values
@@ -44,7 +43,7 @@ OUTPUT_MODEL = args.OUTPUT_MODEL
 
 # Setup directories
 data_path = Path(DATA_DIR)
-train_dir = data_path / "train_untransformed"
+train_dir = data_path / "train"
 test_dir = data_path / "test"
 val_dir = data_path / "validation"
 
@@ -76,16 +75,16 @@ if MODEL_NAME == "yolo":
 
 
 # Set loss and optimizer
-if USE_CLASS_WEIGHTS:
-    # uses class weights with focal losss function
-    print("Creating.. Focal Loss Function with class weights")
-    loss_fn = custom_focal_loss.create_focal_loss_criterion(
-        train_dataloader, class_names, gamma=2
-    )
-    print("Created Focal Loss Function with class weights")
-else:
+# if USE_CLASS_WEIGHTS:
+#     # uses class weights with focal losss function
+#     print("Creating.. Focal Loss Function with class weights")
+#     loss_fn = custom_focal_loss.create_focal_loss_criterion(
+#         train_dataloader, class_names, gamma=2
+#     )
+#     print("Created Focal Loss Function with class weights")
+# else:
     # Uses default loss function
-    loss_fn = torch.nn.CrossEntropyLoss()
+loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 # Create summary writer to track experiment
