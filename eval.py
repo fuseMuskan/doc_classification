@@ -10,29 +10,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import torch
 from PIL import Image
-from torcheval.metrics import MulticlassConfusionMatrix
+from sklearn.metrics import confusion_matrix
+#from torcheval.metrics import MulticlassConfusionMatrix
 from sklearn.metrics import classification_report
 from datetime import datetime
 
 class_names = ["citizenship", "license", "others", "passport"]
 
 
-def calculate_confusion_matrix(
-    input: torch.Tensor or torch.cuda.FloatTensor, target: torch.Tensor or torch.cuda.FloatTensor
-) -> torch.Tensor or torch.cuda.FloatTensor:
+def calculate_confusion_matrix(inputs, target):
     """
     Calculate the confusion matrix for the given predictions and targets.
 
     Args:
-        input (torch.Tensor): Model predictions.
+        inputs (torch.Tensor): Model predictions.
         target (torch.Tensor): True labels.
 
     Returns:
         torch.Tensor: Confusion matrix.
     """
-    metric = MulticlassConfusionMatrix(4)
-    metric.update(input, target)
-    conf_matrix = metric.compute()
+    conf_matrix = confusion_matrix(inputs, target)
     return conf_matrix
 
 
@@ -65,7 +62,7 @@ def plot_confusion_matrix(conf_matrix: np.ndarray, class_names: list) -> plt.Fig
     return fig
 
 
-def save_confusion_matrix(conf_matrix: torch.Tensor) -> plt.Figure:
+def save_confusion_matrix(conf_matrix) -> plt.Figure:
     """
     Save and return the confusion matrix visualization as a figure.
 
@@ -78,13 +75,13 @@ def save_confusion_matrix(conf_matrix: torch.Tensor) -> plt.Figure:
     class_names = ["citizenship", "license", "others", "passport"]
 
     fig = plot_confusion_matrix(
-        conf_matrix=conf_matrix.numpy(), class_names=class_names
+        conf_matrix=conf_matrix, class_names=class_names
     )
     return fig
 
 
 def compute_classification_report(
-    input: torch.Tensor, target: torch.Tensor, model_name: str
+    inputs: torch.Tensor, target: torch.Tensor, model_name: str
 ) -> None:
     """
     Compute and save the classification report.
@@ -95,8 +92,8 @@ def compute_classification_report(
         model_name (str): Name of the model.
     """
     # Convert tensors to NumPy arrays
-    y_true = target.numpy()
-    y_pred = input.numpy()
+    y_true = target
+    y_pred = inputs
 
     # Compute classification report
     report = classification_report(y_true, y_pred, target_names=class_names)
