@@ -23,13 +23,13 @@ def train_step(
 
     # Setup train loss and train accuracy values
     train_loss, train_acc = 0, 0
-
-    confusion_matrix = torch.zeros((4, 4), dtype=torch.float32, device=device)
+    
+    # Initialize variables for confusion matrix
+    all_true_labels = []
+    all_predicted_labels = []
 
     # Loop through data loader data batches
     for batch, (X, y) in enumerate(dataloader):
-
-        print(device)
         # Send data to target device
         X, y = X.to(device), y.to(device)
 
@@ -53,12 +53,17 @@ def train_step(
         y_pred_class = torch.argmax(torch.softmax(y_pred, dim=1), dim=1)
         train_acc += (y_pred_class == y).sum().item() / len(y_pred)
 
-        confusion_matrix += calculate_confusion_matrix(y_pred_class, y)
+        # Store true and predicted labels for confusion matrix
+        all_true_labels.extend(y.cpu().numpy())
+        all_predicted_labels.extend(y_pred_class.cpu().numpy())
+
+    # Compute confusion matrix
+    conf_matrix = calculate_confusion_matrix(all_true_labels, all_predicted_labels)
 
     # Adjust metrics to get average loss and accuracy per batch
     train_loss = train_loss / len(dataloader)
     train_acc = train_acc / len(dataloader)
-    return train_loss, train_acc, confusion_matrix
+    return train_loss, train_acc, conf_matrix
 
 
 def val_step(
@@ -73,7 +78,9 @@ def val_step(
     # Setup test loss and test accuracy values
     val_loss, val_acc = 0, 0
 
-    confusion_matrix = torch.zeros((4, 4), dtype=torch.float32)
+    # Initialize variables for confusion matrix
+    all_true_labels = []
+    all_predicted_labels = []
 
     # Turn on inference context manager
     with torch.inference_mode():
@@ -92,12 +99,17 @@ def val_step(
             # Calculate and accumulate accuracy
             val_pred_labels = val_pred_logits.argmax(dim=1)
             val_acc += (val_pred_labels == y).sum().item() / len(val_pred_labels)
-            confusion_matrix += calculate_confusion_matrix(val_pred_labels, y)
 
+            # Store true and predicted labels for confusion matrix
+            all_true_labels.extend(y.cpu().numpy())
+            all_predicted_labels.extend(val_pred_labels.cpu().numpy())
+
+    # Compute confusion matrix
+    conf_matrix = calculate_confusion_matrix(all_true_labels, all_predicted_labels)
     # Adjust metrics to get average loss and accuracy per batch
     val_loss = val_loss / len(dataloader)
     val_acc = val_acc / len(dataloader)
-    return val_loss, val_acc, confusion_matrix
+    return val_loss, val_acc, conf_matrix
 
 
 from tqdm.auto import tqdm
@@ -116,6 +128,8 @@ def train(
     loss_fn: torch.nn.Module = nn.CrossEntropyLoss(),
     track_experiment: bool = True,
 ):
+
+    model = model.to(device)
 
     # 2. Create empty results dictionary
     results = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
@@ -154,7 +168,7 @@ def train(
         # print("Test Confusion Matrix:")
         # print(test_conf_matrix)
 
-        # generate images of confusion marix
+        #generate images of confusion marix
         train_conf_fig = save_confusion_matrix(train_conf_matrix)
         val_conf_fig = save_confusion_matrix(val_conf_matrix)
 
@@ -202,7 +216,7 @@ def train(
 
     # Use the compute_classification_report function
     compute_classification_report(
-        torch.tensor(y_pred), torch.tensor(y_true), model_name=model_name
+        y_pred, y_true, model_name=model_name
     )
 
     # 6. Return the filled results at the end of the epochs
