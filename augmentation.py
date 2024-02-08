@@ -1,7 +1,5 @@
 from torchvision import transforms
-from PIL import Image
-import argparse
-import os
+
 
 def apply_augmentation(input_size: int):
     # Transformation for Test and Validation Set
