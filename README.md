@@ -74,5 +74,12 @@ Run tensorboard to see different metrics
 %tensorboard --logdir runs
 ```
 
+## Inference
+You can run inference as:
+```
+python inferece.py --model_path=path/to_your_model/model_name.onnx --image_path=path/to_the_document_image/
+```
+
+
 
 
