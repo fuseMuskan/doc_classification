@@ -1,3 +1,6 @@
+"""
+Script for preparing data train, validation and test data loaders
+"""
 import os
 from torchvision import datasets
 from torch.utils.data import DataLoader

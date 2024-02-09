@@ -1,3 +1,6 @@
+"""
+Script for applying necessary transformation on the images as per the model requirement
+"""
 from torchvision import transforms
 
 

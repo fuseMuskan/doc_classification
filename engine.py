@@ -1,3 +1,6 @@
+"""
+Contains functions for training and testing a Pytorch model
+"""
 import torch
 from torch import nn
 from eval import (
@@ -5,10 +8,6 @@ from eval import (
     save_confusion_matrix,
     compute_classification_report,
 )
-
-"""
-Contains functions for training and testing a Pytorch model
-"""
 
 
 def train_step(

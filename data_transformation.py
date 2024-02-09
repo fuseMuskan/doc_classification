@@ -1,3 +1,6 @@
+"""
+Script for running data transformation on training images
+"""
 import argparse
 from pathlib import Path
 import cv2

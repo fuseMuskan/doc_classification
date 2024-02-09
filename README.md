@@ -80,6 +80,8 @@ You can run inference as:
 python inferece.py --model_path=path/to_your_model/model_name.onnx --image_path=path/to_the_document_image/
 ```
 
+The output of the inference will be saved on output folder
+
 
 
 

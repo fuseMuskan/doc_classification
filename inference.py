@@ -1,3 +1,6 @@
+"""
+Script for running inference on fine-tuned models
+"""
 import json
 import torch
 from torchvision import transforms
